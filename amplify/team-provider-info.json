@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-leaf-dev-112942-authRole",
+      "UnauthRoleArn": "arn:aws:iam::506233183264:role/amplify-leaf-dev-112942-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::506233183264:role/amplify-leaf-dev-112942-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-leaf-dev-112942-deployment",
+      "UnauthRoleName": "amplify-leaf-dev-112942-unauthRole",
+      "StackName": "amplify-leaf-dev-112942",
+      "StackId": "arn:aws:cloudformation:ap-south-1:506233183264:stack/amplify-leaf-dev-112942/6c78d4c0-38a9-11ed-87a4-02466646c9d0",
+      "AmplifyAppId": "dc1t0dbajdzq9"
+    },
+    "categories": {
+      "auth": {
+        "leafc2ec3b02": {}
+      }
+    }
+  }
+}

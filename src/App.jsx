@@ -8,11 +8,14 @@ import AddLand from "./components/add_land";
 import SampleDetails from "./components/sample_details";
 import { Routes, Route } from "react-router-dom";
 
-function App() {
+import { withAuthenticator, Heading } from "@aws-amplify/ui-react";
+import "@aws-amplify/ui-react/styles.css";
+
+function App({ signOut, user }) {
   return (
     <div>
       <div className="flex h-screen bg-gray-100">
-        <CutomSiderBar />
+        <CutomSiderBar logout={signOut} />
 
         <div className="flex-grow px-8 pt-6 h-screen overflow-scroll flex flex-col justify-between">
           <div className="mb-4">
@@ -33,4 +36,4 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthenticator(App);

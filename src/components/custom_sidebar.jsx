@@ -16,7 +16,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 
-function CutomSiderBar() {
+function CutomSiderBar({ logout }) {
   return (
     <div className="p-4 sticky top-0 rounded-md max-h-screen">
       <Sidebar aria-label="Sidebar with logo branding example">
@@ -80,7 +80,7 @@ function CutomSiderBar() {
             </Sidebar.Item>
           </Sidebar.ItemGroup>
           <Sidebar.ItemGroup>
-            <Sidebar.Item href="#" icon={UserMinusIcon}>
+            <Sidebar.Item href="#" icon={UserMinusIcon} onClick={logout}>
               Log Out
             </Sidebar.Item>
           </Sidebar.ItemGroup>
