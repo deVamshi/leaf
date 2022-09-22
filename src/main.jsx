@@ -5,10 +5,12 @@ import App from "./App";
 import "./index.css";
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "../src/aws-exports";
+import "react-toastify/dist/ReactToastify.css";
+
+// import { dotenv } from "dotenv";
+// dotenv.config();
 
 Amplify.configure(awsconfig);
-
-// >>New - Configuring Auth Module
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   // <React.StrictMode >

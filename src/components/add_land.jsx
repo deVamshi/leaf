@@ -1,54 +1,58 @@
 import { GoogleMap, LoadScript, DrawingManager } from "@react-google-maps/api";
-import { Button, Label, Select } from "flowbite-react";
+import { Button, Label, Select, Toast } from "flowbite-react";
 import { logger } from "../helper";
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { HiCheckCircle } from "react-icons/hi";
 
 import CustomTextField from "../components/custom_text_field";
 const loadScriptArr = ["drawing"];
+const places = {
+  Ooty: {
+    lat: 11.4102,
+    lng: 76.695,
+  },
+  Bangalore: {
+    lat: 12.9716,
+    lng: 77.5946,
+  },
+  Madanapalle: {
+    lat: 13.556,
+    lng: 78.501,
+  },
+};
 
 export const AddLand = () => {
   const [isMapReady, setIsMapReady] = useState(false);
-
   const [center, setCenter] = useState({
-    lat: 11.4102,
-    lng: 76.695,
+    lat: places["Ooty"]["lat"],
+    lng: places["Ooty"]["lng"],
   });
+  const [area, setArea] = useState("");
 
   const mapContainerStyle = {
     height: "400px",
     width: "800px",
   };
 
-  // const center = {
-  //   lat: 11.4102,
-  //   lng: 76.695,
-  // };
-
   const mapOptions = {};
 
   const [polycoords, setpolycoords] = useState([]);
 
-  const [polyLineDrawn, setPolyLineDrawn] = useState(true);
-
-  // const onPolygonComplete = async (polygon) => {
-  //   var polygonBounds = polygon.getPath();
-  //   let currPoly = [];
-
-  //   for (var i = 0; i < polygonBounds.length; i++) {
-  //     var point = {
-  //       lat: polygonBounds.getAt(i).lat(),
-  //       lng: polygonBounds.getAt(i).lng(),
-  //     };
-  //     currPoly.push(point);
-  //   }
-  //   setIsMapReady(false);
-  //   setpolycoords(currPoly);
-  //   console.log(isMapReady);
-  // };
-
   const onPolylineComplete = (poly) => {
     let polyLine = poly.getPath();
+
+    // Setting the area
+    setArea(
+      (google.maps.geometry.spherical.computeArea(polyLine) / 4047).toFixed(2)
+    );
+
+    toast.info("Please verify the calculated area!", {
+      position: "top-center",
+    });
+
     let currPoly = [];
+
     for (var i = 0; i < polyLine.length - 1; i++) {
       var point = {
         lat: polyLine.getAt(i).lat(),
@@ -60,12 +64,24 @@ export const AddLand = () => {
     console.log(currPoly);
   };
 
+  const handleOnCoordsSubmit = (e) => {
+    e.preventDefault();
+    const latLongData = new FormData(e.target);
+    setCenter({
+      lat: parseFloat(latLongData.get("latitude")),
+      lng: parseFloat(latLongData.get("longitude")),
+    });
+  };
+
+  const handlePlaceSelectChange = (e) => {
+    setCenter(places[e.target.value]);
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-semibold mt-2 border-b-2 ">
         Farm Land Details:
       </h1>
-
       <div className="flex space-x-3">
         {/* Left Section */}
         <div>
@@ -77,48 +93,38 @@ export const AddLand = () => {
               <div className="mb-2 block">
                 <Label htmlFor="countries" value="Select City" />
               </div>
-              <Select id="countries" required={true}>
-                <option>Ooty</option>
-                <option>Kothagiri</option>
-                <option>Bangalore</option>
-                <option>Jaipu</option>
+              <Select onChange={handlePlaceSelectChange}>
+                {Object.entries(places).map(([place, v]) => (
+                  <option key={place} value={place}>
+                    {place}
+                  </option>
+                ))}
               </Select>
             </div>
           </div>
           <p className=" text-slate-400">- Or -</p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const latLongData = new FormData(e.target);
-              console.log(parseFloat(latLongData.get("latitude")));
-              setCenter({
-                lat: parseFloat(latLongData.get("latitude")),
-                lng: parseFloat(latLongData.get("longitude")),
-              });
-            }}
-          >
+          <form onSubmit={handleOnCoordsSubmit}>
             <div className="flex mb-4 space-x-4 align-bottom">
               <CustomTextField
-                type={"number"}
+                type="number"
                 name="latitude"
                 label="Enter Latitude"
               />
               <CustomTextField
-                type={"number"}
+                type="number"
                 name="longitude"
                 label="Enter Longitude"
               />
             </div>
-
             <div className="mt-2 mb-4">
-              <Button type="submit" size="md">
+              <Button type="submit" size="xs">
                 Search
               </Button>
             </div>
           </form>
 
           <LoadScript
-            googleMapsApiKey="AIzaSyC0obu5PB8s6Yoi73G9XtKXFnTAA8nmPxs"
+            googleMapsApiKey={import.meta.env.VITE_GMAPS_API_KEY}
             libraries={loadScriptArr}
           >
             <GoogleMap
@@ -139,6 +145,7 @@ export const AddLand = () => {
                 <DrawingManager
                   className="invisible"
                   onPolylineComplete={onPolylineComplete}
+                  // {onPolylineComplete}
                   drawingMode={"polyline"}
                 />
               ) : (
@@ -153,16 +160,14 @@ export const AddLand = () => {
           <h1 className="text-1xl text-green-600 mt-4">
             2. Enter farmland details:
           </h1>
-          <CustomTextField label={"Area"} disabled={true} />
-
           <CustomTextField label={"Serial No."} />
           <div className="my-4">
-            <Button size="md">Verify</Button>
+            <Button size="xs">Verify</Button>
           </div>
 
           <div className="border-t-2 ">
             <CustomTextField label={"Survey No."} />
-            <CustomTextField label={"Size in acres"} />
+            <CustomTextField label={"Size in acres"} defaultValue={area} />
 
             <div id="select">
               <div className="mb-2 block">
@@ -175,7 +180,7 @@ export const AddLand = () => {
             </div>
 
             <div className="my-4">
-              <Button size="md">Save</Button>
+              <Button size="md">Submit</Button>
             </div>
           </div>
         </div>

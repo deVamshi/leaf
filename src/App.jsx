@@ -14,6 +14,7 @@ import { useEffect } from "react";
 
 import { Auth } from "aws-amplify";
 import awsconfig from "../src/aws-exports";
+import { ToastContainer } from "react-toastify";
 
 function App({ signOut, user }) {
   useEffect(() => {
@@ -23,6 +24,7 @@ function App({ signOut, user }) {
 
   return (
     <div>
+      <ToastContainer />
       <div className="flex h-screen bg-gray-100">
         <CutomSiderBar logout={signOut} />
 
