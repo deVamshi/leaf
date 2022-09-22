@@ -20,7 +20,6 @@ export const getFarmer = /* GraphQL */ `
     }
   }
 `;
-
 export const listFarmers = /* GraphQL */ `
   query ListFarmers(
     $sno: ID
@@ -47,6 +46,57 @@ export const listFarmers = /* GraphQL */ `
         aaddhar_no
         mobile
         daeo
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+    }
+  }
+`;
+export const getLand = /* GraphQL */ `
+  query GetLand($sno: ID!) {
+    getLand(sno: $sno) {
+      sno
+      survey_no
+      lat
+      long
+      water_source
+      url
+      poly
+      area
+      region
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const listLands = /* GraphQL */ `
+  query ListLands(
+    $sno: ID
+    $filter: ModelLandFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listLands(
+      sno: $sno
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        sno
+        survey_no
+        lat
+        long
+        water_source
+        url
+        poly
+        area
+        region
         createdAt
         updatedAt
         owner

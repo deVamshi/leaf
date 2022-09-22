@@ -1,6 +1,6 @@
 import { GoogleMap, LoadScript, DrawingManager } from "@react-google-maps/api";
 import { Button, Label, Select } from "flowbite-react";
-
+import { logger } from "../helper";
 import React, { useState } from "react";
 
 import CustomTextField from "../components/custom_text_field";
@@ -9,15 +9,20 @@ const loadScriptArr = ["drawing"];
 export const AddLand = () => {
   const [isMapReady, setIsMapReady] = useState(false);
 
+  const [center, setCenter] = useState({
+    lat: 11.4102,
+    lng: 76.695,
+  });
+
   const mapContainerStyle = {
     height: "400px",
     width: "800px",
   };
 
-  const center = {
-    lat: 11.4102,
-    lng: 76.695,
-  };
+  // const center = {
+  //   lat: 11.4102,
+  //   lng: 76.695,
+  // };
 
   const mapOptions = {};
 
@@ -81,16 +86,41 @@ export const AddLand = () => {
             </div>
           </div>
           <p className=" text-slate-400">- Or -</p>
-          <div className="flex mb-4 space-x-4 align-bottom">
-            <CustomTextField label="Enter Latitude" />
-            <CustomTextField label="Enter Longitude" />
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const latLongData = new FormData(e.target);
+              console.log(parseFloat(latLongData.get("latitude")));
+              setCenter({
+                lat: parseFloat(latLongData.get("latitude")),
+                lng: parseFloat(latLongData.get("longitude")),
+              });
+            }}
+          >
+            <div className="flex mb-4 space-x-4 align-bottom">
+              <CustomTextField
+                type={"number"}
+                name="latitude"
+                label="Enter Latitude"
+              />
+              <CustomTextField
+                type={"number"}
+                name="longitude"
+                label="Enter Longitude"
+              />
+            </div>
 
-          <div className="mt-2 mb-4">
-            <Button size="md">Search</Button>
-          </div>
+            <div className="mt-2 mb-4">
+              <Button type="submit" size="md">
+                Search
+              </Button>
+            </div>
+          </form>
 
-          <LoadScript googleMapsApiKey="" libraries={loadScriptArr}>
+          <LoadScript
+            googleMapsApiKey="AIzaSyC0obu5PB8s6Yoi73G9XtKXFnTAA8nmPxs"
+            libraries={loadScriptArr}
+          >
             <GoogleMap
               onLoad={(mapInst) => {
                 mapInst.setMapTypeId("satellite");

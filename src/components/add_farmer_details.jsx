@@ -5,7 +5,6 @@ import { listFarmers } from "../graphql/queries";
 import { Label, TextInput, Button, Card } from "flowbite-react";
 
 function AddFarmerDetails() {
-  
   const addFarmerDetails = async (formData) => {
     const result = await API.graphql(
       graphqlOperation(createFarmer, {

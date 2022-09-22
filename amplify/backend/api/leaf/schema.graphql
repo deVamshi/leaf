@@ -24,11 +24,16 @@ type Land @model @auth(rules: [{ allow: owner }]) {
   lat: String!
   long: String!
   water_source: String!
-  url: String!
+  url: String
   poly: String!
   area: Float!
-  region: String!
+  region: String
 }
+
+
+
+
+
 
 # Farmer Details Entry Screen:
 # CREATE TABLE [dbo].[farmer](

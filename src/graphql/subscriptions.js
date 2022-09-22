@@ -58,3 +58,57 @@ export const onDeleteFarmer = /* GraphQL */ `
     }
   }
 `;
+export const onCreateLand = /* GraphQL */ `
+  subscription OnCreateLand($owner: String) {
+    onCreateLand(owner: $owner) {
+      sno
+      survey_no
+      lat
+      long
+      water_source
+      url
+      poly
+      area
+      region
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onUpdateLand = /* GraphQL */ `
+  subscription OnUpdateLand($owner: String) {
+    onUpdateLand(owner: $owner) {
+      sno
+      survey_no
+      lat
+      long
+      water_source
+      url
+      poly
+      area
+      region
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onDeleteLand = /* GraphQL */ `
+  subscription OnDeleteLand($owner: String) {
+    onDeleteLand(owner: $owner) {
+      sno
+      survey_no
+      lat
+      long
+      water_source
+      url
+      poly
+      area
+      region
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
