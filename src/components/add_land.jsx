@@ -90,10 +90,7 @@ export const AddLand = () => {
             <Button size="md">Search</Button>
           </div>
 
-          <LoadScript
-            googleMapsApiKey="AIzaSyC0obu5PB8s6Yoi73G9XtKXFnTAA8nmPxs"
-            libraries={loadScriptArr}
-          >
+          <LoadScript googleMapsApiKey="" libraries={loadScriptArr}>
             <GoogleMap
               onLoad={(mapInst) => {
                 mapInst.setMapTypeId("satellite");
