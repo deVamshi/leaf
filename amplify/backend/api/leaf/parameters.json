@@ -1,0 +1,12 @@
+{
+  "AppSyncApiName": "leaf",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authleafc2ec3b02",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2022-09-21T13:44:57.619Z"
+}

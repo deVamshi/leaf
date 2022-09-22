@@ -10,8 +10,17 @@ import { Routes, Route } from "react-router-dom";
 
 import { withAuthenticator, Heading } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import { useEffect } from "react";
+
+import { Auth } from "aws-amplify";
+import awsconfig from "../src/aws-exports";
 
 function App({ signOut, user }) {
+  useEffect(() => {
+    console.log("Ran Use Effect for Auth");
+    Auth.configure(awsconfig);
+  }, []);
+
   return (
     <div>
       <div className="flex h-screen bg-gray-100">
