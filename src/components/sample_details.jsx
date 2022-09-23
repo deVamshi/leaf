@@ -3,6 +3,16 @@ import CustomTextField from "./custom_text_field";
 
 import { Button, Table } from "flowbite-react";
 import { logger } from "../helper";
+import {
+  createSample,
+  createCropManure,
+  createSampleDetails,
+  createSampleCategory,
+  createSampleRemarks,
+} from "../graphql/mutations";
+
+import { API, graphqlOperation } from "aws-amplify";
+import { toast } from "react-toastify";
 
 const permissibleValues = {
   pH: { low: 6.5, high: 8.0 },
@@ -109,65 +119,106 @@ const SampleDetails = () => {
     );
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const fD = new FormData(e.target);
+
+    const sampleTable = {
+      sno: fD.get("sno"),
+      card_no: fD.get("card_no"),
+      date_collected: fD.get("date_collected"),
+      date_tested: fD.get("date_tested"),
+      survey_no: fD.get("survey_no"),
+    };
+
+    const cropManureTable = {
+      card_no: fD.get("card_no"),
+      crop: fD.get("crop"),
+      manure: fD.get("manure"),
+      dap: fD.get("dap"),
+      urea: fD.get("urea"),
+      mop: fD.get("mop"),
+    };
+
+    const threeTables = [];
+
+    for (let i = 1; i < 4; i++) {
+      const data = {
+        card_no: fD.get("card_no"),
+        ph: fD.get((i + "pH").toString()),
+        ec: fD.get((i + "EC(mS/cm)").toString()),
+        oc: fD.get((i + "OC(%)").toString()),
+        avn: fD.get((i + "AvN(kg/ha)").toString()),
+        phos: fD.get((i + "Phos(kg/ha)").toString()),
+        pot: fD.get((i + "Pot(kg/ha)").toString()),
+        sulph: fD.get((i + "Sulph(mg/kg)").toString()),
+        zinc: fD.get((i + "Zinc(mg/kg)").toString()),
+        boron: fD.get((i + "Boron(mg/kg)").toString()),
+        iron: fD.get((i + "Iron(mg/kg)").toString()),
+        mangan: fD.get((i + "Mangan(mg/kg)").toString()),
+        copper: fD.get((i + "Copper(mg/kg)").toString()),
+      };
+      if (i == 1) {
+        for (const key in data) {
+          if (key != undefined && key != "" && key != "card_no")
+            data[key] = parseFloat(data[key]);
+        }
+      }
+      threeTables.push(data);
+    }
+
+    logger(sampleTable);
+    logger(cropManureTable);
+    logger(threeTables);
+    logger("Sending all the data");
+
+    try {
+      const sampleResult = await API.graphql(
+        graphqlOperation(createSample, {
+          input: sampleTable,
+        })
+      );
+      const cropManureResult = await API.graphql(
+        graphqlOperation(createCropManure, {
+          input: cropManureTable,
+        })
+      );
+      const sampleDetailsResult = await API.graphql(
+        graphqlOperation(createSampleDetails, {
+          input: threeTables[0],
+        })
+      );
+      const sampleCategoryResult = await API.graphql(
+        graphqlOperation(createSampleCategory, {
+          input: threeTables[1],
+        })
+      );
+      const sampleRemarksResult = await API.graphql(
+        graphqlOperation(createSampleRemarks, {
+          input: threeTables[2],
+        })
+      );
+
+      logger(sampleResult);
+      logger(cropManureResult);
+      logger(sampleDetailsResult);
+      logger(sampleCategoryResult);
+      logger(sampleRemarksResult);
+
+      toast.success("Sample Details Added Successfully");
+    } catch (err) {
+      logger(err);
+    }
+
+    logger("Submission Done");
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-semibold mt-2 mb-6">
         Enter Sample Details:
       </h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const fD = new FormData(e.target);
-
-          const sampleTable = {
-            sno: fD.get("sno"),
-            card_no: fD.get("card_no"),
-            date_collected: fD.get("date_collected"),
-            date_tested: fD.get("date_tested"),
-            survey_no: fD.get("survey_no"),
-          };
-
-          const cropManureTable = {
-            card_no: fD.get("card_no"),
-            crop: fD.get("crop"),
-            manure: fD.get("manure"),
-            dap: fD.get("dap"),
-            urea: fD.get("urea"),
-            mop: fD.get("mop"),
-          };
-
-          const threeTables = [];
-
-          for (let i = 1; i < 4; i++) {
-            const data = {
-              card_no: fD.get("card_no"),
-              ph: fD.get((i + "pH").toString()),
-              ec: fD.get((i + "EC(mS/cm)").toString()),
-              oc: fD.get((i + "OC(%)").toString()),
-              avn: fD.get((i + "AvN(kg/ha)").toString()),
-              phos: fD.get((i + "Phos(kg/ha)").toString()),
-              pot: fD.get((i + "Pot(kg/ha)").toString()),
-              sulph: fD.get((i + "Sulph(mg/kg)").toString()),
-              zinc: fD.get((i + "Zinc(mg/kg)").toString()),
-              boron: fD.get((i + "Boron(mg/kg)").toString()),
-              iron: fD.get((i + "Iron(mg/kg)").toString()),
-              mangan: fD.get((i + "Mangan(mg/kg)").toString()),
-              copper: fD.get((i + "Copper(mg/kg)").toString()),
-            };
-            if (i == 1) {
-              for (const key in data) {
-                if (key != undefined && key != "" && key != "card_no")
-                  data[key] = parseFloat(data[key]);
-              }
-            }
-            threeTables.push(data);
-          }
-
-          logger(sampleTable);
-          logger(cropManureTable);
-          logger(threeTables);
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <div>
           <div className="flex mb-4 space-x-4 align-bottom">
             <CustomTextField name={"sno"} label="Serial No." required />

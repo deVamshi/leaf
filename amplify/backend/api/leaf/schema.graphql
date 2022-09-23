@@ -7,7 +7,7 @@ input AMPLIFY {
 
 # ---------------------------------------------------------
 # Farmer Model
-type Farmer @Stringel @auth(rules: [{ allow: owner }]) {
+type Farmer @model @auth(rules: [{ allow: owner }]) {
   sno: ID! @primaryKey
   name: String!
   address: String!
@@ -44,7 +44,7 @@ type Sample @model @auth(rules: [{ allow: owner }]) {
   survey_no: String
 }
 
-type Crop_Manure @model @auth(rules: [{ allow: owner }]) {
+type CropManure @model @auth(rules: [{ allow: owner }]) {
   card_no: String
   crop: String
   manure: String
@@ -53,7 +53,7 @@ type Crop_Manure @model @auth(rules: [{ allow: owner }]) {
   mop: String
 }
 
-type Sample_Details @model @auth(rules: [{ allow: owner }]) {
+type SampleDetails @model @auth(rules: [{ allow: owner }]) {
   card_no: String
   ph: Float
   ec: Float
@@ -69,7 +69,7 @@ type Sample_Details @model @auth(rules: [{ allow: owner }]) {
   copper: Float
 }
 
-type Sample_Category @model @auth(rules: [{ allow: owner }]) {
+type SampleCategory @model @auth(rules: [{ allow: owner }]) {
   card_no: String
   ph: String
   ec: String
@@ -85,7 +85,7 @@ type Sample_Category @model @auth(rules: [{ allow: owner }]) {
   copper: String
 }
 
-type Sample_Remarks @model @auth(rules: [{ allow: owner }]) {
+type SampleRemarks @model @auth(rules: [{ allow: owner }]) {
   card_no: String
   ph: String
   ec: String
@@ -103,7 +103,7 @@ type Sample_Remarks @model @auth(rules: [{ allow: owner }]) {
 
 # ---------------------------------------------------------
 # Cost Details
-type Crop_IO @model @auth(rules: [{ allow: owner }]) {
+type CropIO @model @auth(rules: [{ allow: owner }]) {
   serial: String
   crop: String
   period: Int
