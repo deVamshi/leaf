@@ -19,7 +19,7 @@ type Farmer @model @auth(rules: [{ allow: owner }]) {
 }
 
 type Land @model @auth(rules: [{ allow: owner }]) {
-  sno: ID! @primaryKey
+  sno: ID!
   survey_no: String
   lat: String!
   long: String!
@@ -29,11 +29,6 @@ type Land @model @auth(rules: [{ allow: owner }]) {
   area: Float!
   region: String
 }
-
-
-
-
-
 
 # Farmer Details Entry Screen:
 # CREATE TABLE [dbo].[farmer](

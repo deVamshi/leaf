@@ -70,6 +70,7 @@ export const onCreateLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner
@@ -88,6 +89,7 @@ export const onUpdateLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner
@@ -106,6 +108,7 @@ export const onDeleteLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner

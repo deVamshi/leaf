@@ -45,7 +45,6 @@ export const updateFarmer = /* GraphQL */ `
     }
   }
 `;
-
 export const deleteFarmer = /* GraphQL */ `
   mutation DeleteFarmer(
     $input: DeleteFarmerInput!
@@ -68,7 +67,6 @@ export const deleteFarmer = /* GraphQL */ `
     }
   }
 `;
-
 export const createLand = /* GraphQL */ `
   mutation CreateLand(
     $input: CreateLandInput!
@@ -84,6 +82,7 @@ export const createLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner
@@ -105,6 +104,7 @@ export const updateLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner
@@ -126,6 +126,7 @@ export const deleteLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner

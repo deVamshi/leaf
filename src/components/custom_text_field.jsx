@@ -1,6 +1,16 @@
 import { Label, TextInput } from "flowbite-react";
 
-const CustomTextField = ({ label, disabled, name, type, defaultValue }) => {
+const CustomTextField = ({
+  key,
+  label,
+  disabled,
+  name,
+  type,
+  defaultValue,
+  onChange,
+  stepValue,
+  currValue,
+}) => {
   if (!type) type = "text";
   return (
     <div className="my-0">
@@ -8,9 +18,12 @@ const CustomTextField = ({ label, disabled, name, type, defaultValue }) => {
         <Label value={label} />
       </div>
       <TextInput
+        key={key}
+        value={currValue}
+        onChange={onChange}
         type={type}
         defaultValue={defaultValue}
-        step={type === "number" ? "any" : ""}
+        step={stepValue ? stepValue : ""}
         name={name}
         disabled={disabled}
         required={true}

@@ -1,9 +1,12 @@
 import { GoogleMap, LoadScript, DrawingManager } from "@react-google-maps/api";
 import { Button, Label, Select, Toast } from "flowbite-react";
 import { logger } from "../helper";
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import { HiCheckCircle } from "react-icons/hi";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+
+import { API, graphqlOperation } from "aws-amplify";
+import { createFarmer, createLand } from "../graphql/mutations";
+import { getFarmer } from "../graphql/queries";
 
 import CustomTextField from "../components/custom_text_field";
 const loadScriptArr = ["drawing"];
@@ -29,15 +32,16 @@ export const AddLand = () => {
     lng: places["Ooty"]["lng"],
   });
   const [area, setArea] = useState("");
+  const [serialNo, setSerialNo] = useState("");
+  const [cordsStr, setCordsStr] = useState("");
+  const [region, setRegion] = useState("Ooty");
+  const [zoomLevel, setZoomLevel] = useState(18);
+  const [mapInstance, setMapInstance] = useState(null);
 
   const mapContainerStyle = {
     height: "400px",
     width: "800px",
   };
-
-  const mapOptions = {};
-
-  const [polycoords, setpolycoords] = useState([]);
 
   const onPolylineComplete = (poly) => {
     let polyLine = poly.getPath();
@@ -51,17 +55,12 @@ export const AddLand = () => {
       position: "top-center",
     });
 
-    let currPoly = [];
-
-    for (var i = 0; i < polyLine.length - 1; i++) {
-      var point = {
-        lat: polyLine.getAt(i).lat(),
-        lng: polyLine.getAt(i).lng(),
-      };
-      currPoly.push(point);
+    var coordStr = "";
+    for (var i = 0; i < polyLine.getLength(); i++) {
+      coordStr += polyLine.getAt(i).toUrlValue(6) + ";";
     }
-    // setpolycoords(currPoly);
-    console.log(currPoly);
+    logger(coordStr);
+    setCordsStr(coordStr);
   };
 
   const handleOnCoordsSubmit = (e) => {
@@ -73,10 +72,91 @@ export const AddLand = () => {
     });
   };
 
-  const handlePlaceSelectChange = (e) => {
-    setCenter(places[e.target.value]);
+  useEffect(() => {
+    setCenter(places[region]);
+  }, [region]);
+
+  const handlePlaceSelectChange = (e) => setRegion(e.target.value);
+
+  const handleOnSNOSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    const isValidSNO = async (id) => {
+      const result = await API.graphql(
+        graphqlOperation(getFarmer, { sno: id })
+      );
+      return result.data.getFarmer;
+    };
+
+    if (await isValidSNO(formData.get("sno"))) {
+      setSerialNo(formData.get("sno"));
+    } else toast.error("Invalid Serial No.");
   };
 
+  const getMapUrl = () => {
+    let staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap";
+    const mapOptions = {
+      center: mapInstance.getCenter(),
+      zoom: mapInstance.getZoom(),
+      mapTypeId: google.maps.MapTypeId.SATELLITE,
+      marker: true,
+    };
+
+    //Set the Google Map Center.
+    staticMapUrl +=
+      "?center=" + mapOptions.center.lat() + "," + mapOptions.center.lng();
+    staticMapUrl += "&zoom=" + mapOptions.zoom;
+    staticMapUrl += "&size=500x400";
+    staticMapUrl +=
+      "&path=color:0xff0000cd%7Cweight:3%7Cfillcolor:0x0000ff9a%7C";
+    staticMapUrl += cordsStr.slice(0, -1).replaceAll(";", "|");
+    staticMapUrl += "&maptype=" + mapOptions.mapTypeId;
+    staticMapUrl += "&key=" + import.meta.env.VITE_GMAPS_API_KEY;
+    return staticMapUrl;
+  };
+
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    logger(getMapUrl());
+    logger({
+      sno: serialNo,
+      survey_no: formData.get("surveyno"),
+      area: formData.get("area"),
+      water_source: formData.get("watersource"),
+      lat: mapInstance.getCenter().lat(),
+      long: mapInstance.getCenter().lng(),
+      poly: cordsStr,
+      region: region,
+      url: getMapUrl(),
+    });
+    try {
+      const result = await API.graphql(
+        graphqlOperation(createLand, {
+          input: {
+            sno: serialNo,
+            survey_no: formData.get("surveyno"),
+            area: formData.get("area"),
+            water_source: formData.get("watersource"),
+            lat: mapInstance.getCenter().lat(),
+            long: mapInstance.getCenter().lng(),
+            poly: cordsStr,
+            region: region,
+            url: getMapUrl(),
+          },
+        })
+      );
+      logger(result);
+      toast.success("Land added successfully");
+    } catch (err) {
+      logger(err);
+      toast.error("Something went wrong, Please check the input values");
+    }
+  };
+
+  
   return (
     <div>
       <h1 className="text-2xl font-semibold mt-2 border-b-2 ">
@@ -107,13 +187,19 @@ export const AddLand = () => {
             <div className="flex mb-4 space-x-4 align-bottom">
               <CustomTextField
                 type="number"
+                stepValue={"any"}
                 name="latitude"
                 label="Enter Latitude"
+                defaultValue={center.lat}
+                key={center.lat}
               />
               <CustomTextField
                 type="number"
+                stepValue={"any"}
                 name="longitude"
                 label="Enter Longitude"
+                defaultValue={center.lng}
+                key={center.lng}
               />
             </div>
             <div className="mt-2 mb-4">
@@ -129,13 +215,13 @@ export const AddLand = () => {
           >
             <GoogleMap
               onLoad={(mapInst) => {
+                setMapInstance(mapInst);
                 mapInst.setMapTypeId("satellite");
                 setInterval(function () {
                   setIsMapReady(true);
                 }, 10);
                 console.log("Map is ready");
               }}
-              options={mapOptions}
               id="drawing-manager-example"
               mapContainerStyle={mapContainerStyle}
               zoom={18}
@@ -145,7 +231,6 @@ export const AddLand = () => {
                 <DrawingManager
                   className="invisible"
                   onPolylineComplete={onPolylineComplete}
-                  // {onPolylineComplete}
                   drawingMode={"polyline"}
                 />
               ) : (
@@ -153,6 +238,12 @@ export const AddLand = () => {
               )}
             </GoogleMap>
           </LoadScript>
+          <div className="mt-2">
+            <CustomTextField
+              label={"Poly Line Co-Ordinates"}
+              currValue={cordsStr}
+            />
+          </div>
         </div>
 
         {/* Right Section */}
@@ -160,29 +251,53 @@ export const AddLand = () => {
           <h1 className="text-1xl text-green-600 mt-4">
             2. Enter farmland details:
           </h1>
-          <CustomTextField label={"Serial No."} />
-          <div className="my-4">
-            <Button size="xs">Verify</Button>
-          </div>
-
-          <div className="border-t-2 ">
-            <CustomTextField label={"Survey No."} />
-            <CustomTextField label={"Size in acres"} defaultValue={area} />
-
-            <div id="select">
-              <div className="mb-2 block">
-                <Label htmlFor="countries" value="Water Source" />
-              </div>
-              <Select id="countries" required={true}>
-                <option>Rain Fed</option>
-                <option>Irrigated</option>
-              </Select>
-            </div>
-
+          <form onSubmit={handleOnSNOSubmit}>
+            <CustomTextField
+              name={"sno"}
+              label={"Serial No."}
+              onChange={() => setSerialNo("")}
+            />
             <div className="my-4">
-              <Button size="md">Submit</Button>
+              <Button type="submit" size="xs">
+                Verify
+              </Button>
             </div>
-          </div>
+          </form>
+
+          <fieldset
+            disabled={!serialNo.length}
+            style={{ opacity: serialNo.length ? 1 : 0.5 }}
+            className="pt-4"
+          >
+            <form onSubmit={handleFinalSubmit}>
+              <div className="border-t-2 ">
+                <CustomTextField label={"Survey No."} name={"surveyno"} />
+                <CustomTextField
+                  type={"number"}
+                  stepValue={"any"}
+                  label={"Size in acres"}
+                  name={"area"}
+                  key={area}
+                  defaultValue={area}
+                />
+                <div id="select">
+                  <div className="mb-2 block">
+                    <Label htmlFor="countries" value="Water Source" />
+                  </div>
+                  <Select name="watersource" required={true}>
+                    <option value="Rain Fed">Rain Fed</option>
+                    <option value="Irrigated">Irrigated</option>
+                  </Select>
+                </div>
+
+                <div className="my-4">
+                  <Button size="md" type="submit">
+                    Submit
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </fieldset>
         </div>
       </div>
     </div>

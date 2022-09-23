@@ -55,8 +55,8 @@ export const listFarmers = /* GraphQL */ `
   }
 `;
 export const getLand = /* GraphQL */ `
-  query GetLand($sno: ID!) {
-    getLand(sno: $sno) {
+  query GetLand($id: ID!) {
+    getLand(id: $id) {
       sno
       survey_no
       lat
@@ -66,6 +66,7 @@ export const getLand = /* GraphQL */ `
       poly
       area
       region
+      id
       createdAt
       updatedAt
       owner
@@ -74,19 +75,11 @@ export const getLand = /* GraphQL */ `
 `;
 export const listLands = /* GraphQL */ `
   query ListLands(
-    $sno: ID
     $filter: ModelLandFilterInput
     $limit: Int
     $nextToken: String
-    $sortDirection: ModelSortDirection
   ) {
-    listLands(
-      sno: $sno
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      sortDirection: $sortDirection
-    ) {
+    listLands(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         sno
         survey_no
@@ -97,6 +90,7 @@ export const listLands = /* GraphQL */ `
         poly
         area
         region
+        id
         createdAt
         updatedAt
         owner
