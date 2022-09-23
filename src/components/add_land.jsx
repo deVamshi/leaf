@@ -3,12 +3,12 @@ import { Button, Label, Select, Toast } from "flowbite-react";
 import { logger } from "../helper";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-
 import { API, graphqlOperation } from "aws-amplify";
-import { createFarmer, createLand } from "../graphql/mutations";
+import { createLand } from "../graphql/mutations";
 import { getFarmer } from "../graphql/queries";
 
 import CustomTextField from "../components/custom_text_field";
+
 const loadScriptArr = ["drawing"];
 const places = {
   Ooty: {
@@ -35,7 +35,6 @@ export const AddLand = () => {
   const [serialNo, setSerialNo] = useState("");
   const [cordsStr, setCordsStr] = useState("");
   const [region, setRegion] = useState("Ooty");
-  const [zoomLevel, setZoomLevel] = useState(18);
   const [mapInstance, setMapInstance] = useState(null);
 
   const mapContainerStyle = {
@@ -51,14 +50,12 @@ export const AddLand = () => {
       (google.maps.geometry.spherical.computeArea(polyLine) / 4047).toFixed(2)
     );
 
-    toast.info("Please verify the calculated area!", {
-      position: "top-center",
-    });
+    toast.info("Please verify the calculated area!");
 
     var coordStr = "";
-    for (var i = 0; i < polyLine.getLength(); i++) {
+    for (var i = 0; i < polyLine.getLength(); i++)
       coordStr += polyLine.getAt(i).toUrlValue(6) + ";";
-    }
+
     logger(coordStr);
     setCordsStr(coordStr);
   };
@@ -80,9 +77,8 @@ export const AddLand = () => {
 
   const handleOnSNOSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData(e.target);
-
+    // check if the entered serial no is valid or not
     const isValidSNO = async (id) => {
       const result = await API.graphql(
         graphqlOperation(getFarmer, { sno: id })
@@ -95,43 +91,33 @@ export const AddLand = () => {
     } else toast.error("Invalid Serial No.");
   };
 
-  const getMapUrl = () => {
-    let staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap";
-    const mapOptions = {
-      center: mapInstance.getCenter(),
-      zoom: mapInstance.getZoom(),
-      mapTypeId: google.maps.MapTypeId.SATELLITE,
-      marker: true,
-    };
-
-    //Set the Google Map Center.
-    staticMapUrl +=
-      "?center=" + mapOptions.center.lat() + "," + mapOptions.center.lng();
-    staticMapUrl += "&zoom=" + mapOptions.zoom;
-    staticMapUrl += "&size=500x400";
-    staticMapUrl +=
-      "&path=color:0xff0000cd%7Cweight:3%7Cfillcolor:0x0000ff9a%7C";
-    staticMapUrl += cordsStr.slice(0, -1).replaceAll(";", "|");
-    staticMapUrl += "&maptype=" + mapOptions.mapTypeId;
-    staticMapUrl += "&key=" + import.meta.env.VITE_GMAPS_API_KEY;
-    return staticMapUrl;
-  };
-
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
+
+    const getMapUrl = () => {
+      let staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap";
+      const mapOptions = {
+        center: mapInstance.getCenter(),
+        zoom: mapInstance.getZoom(),
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        marker: true,
+      };
+      //Set the Google Map Center.
+      staticMapUrl +=
+        "?center=" + mapOptions.center.lat() + "," + mapOptions.center.lng();
+      staticMapUrl += "&zoom=" + mapOptions.zoom;
+      staticMapUrl += "&size=500x400";
+      staticMapUrl +=
+        "&path=color:0xff0000cd%7Cweight:3%7Cfillcolor:0x0000ff9a%7C";
+      staticMapUrl += cordsStr.slice(0, -1).replaceAll(";", "|");
+      staticMapUrl += "&maptype=" + mapOptions.mapTypeId;
+      staticMapUrl += "&key=" + import.meta.env.VITE_GMAPS_API_KEY;
+      return staticMapUrl;
+    };
+
     const formData = new FormData(e.target);
+    logger("Map Snapshot Link:");
     logger(getMapUrl());
-    logger({
-      sno: serialNo,
-      survey_no: formData.get("surveyno"),
-      area: formData.get("area"),
-      water_source: formData.get("watersource"),
-      lat: mapInstance.getCenter().lat(),
-      long: mapInstance.getCenter().lng(),
-      poly: cordsStr,
-      region: region,
-      url: getMapUrl(),
-    });
     try {
       const result = await API.graphql(
         graphqlOperation(createLand, {
@@ -156,7 +142,7 @@ export const AddLand = () => {
     }
   };
 
-  
+  // UI
   return (
     <div>
       <h1 className="text-2xl font-semibold mt-2 border-b-2 ">

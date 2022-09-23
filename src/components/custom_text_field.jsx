@@ -10,6 +10,7 @@ const CustomTextField = ({
   onChange,
   stepValue,
   currValue,
+  required,
 }) => {
   if (!type) type = "text";
   return (
@@ -26,7 +27,7 @@ const CustomTextField = ({
         step={stepValue ? stepValue : ""}
         name={name}
         disabled={disabled}
-        required={true}
+        required={required}
       />
     </div>
   );
