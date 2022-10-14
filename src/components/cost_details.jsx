@@ -1,13 +1,12 @@
 import React from "react";
 import { Label, TextInput, Checkbox, Button, Card } from "flowbite-react";
 import { logger } from "../helper";
-
 import { API, graphqlOperation } from "aws-amplify";
-
 import { createCropIO } from "../graphql/mutations";
 import { toast } from "react-toastify";
 
 function CostDetails() {
+  
   const getInsideTitle = (title) => {
     return <span className="text-xl text-green-500 mt-2">{title}:</span>;
   };
@@ -23,6 +22,7 @@ function CostDetails() {
     );
   };
 
+  // OOT263
   const handleSubmit = async (e) => {
     e.preventDefault();
     const finalData = {};
